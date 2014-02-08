@@ -8,7 +8,6 @@ import matplotlib.pyplot as plt
 
 # Script versions
 __version__ = "0.1.0"
-__prog__version__ = "{} {}".format(os.path.basename(__file__), __version__)
 
 #----------------------------------------
 # Plot classes
@@ -20,12 +19,23 @@ class PlotLine:
 
     def __init__(self):
         logging.debug("Class created")
+        self.title = "PlotLine"
+        self.data = []
+        self.x_labels = None
 
-    def drawData(self, y):
-        x = np.linspace(1, len(y), len(y))
-        plt.plot(y)
+    def addData(self, y):
+        self.data.append(y)
+
+    def draw(self):
+        for d in self.data:
+            logging.debug("data: {} ".format(d))
+            plt.plot(d)
+        if self.x_labels != None:
+            plt.xticks(np.arange(len(self.x_labels)), self.x_labels)
+        plt.title(self.title)
 
     def show(self):
+        plt.draw()
         plt.show()
 
 # Time slot graph
@@ -58,9 +68,9 @@ class TimeSlot:
         self.draw()
         plt.show()
 
-#----------------------------------------
+#-----------------------------------------------------------
 # Main program
-#----------------------------------------
+#-----------------------------------------------------------
 if __name__ == "__main__":
     import argparse
     import textwrap
@@ -80,9 +90,10 @@ if __name__ == "__main__":
     parser.add_argument("-l", "--log", default='ERROR',
                         choices=['DEBUG', 'INFO', 'WARNING', 'ERROR'],
                         help="logger level (default: %(default)s)")
-    parser.add_argument("-s", "--subplot", type=int, default=0,
-                        help="Select sub-plot example (default: %(default)i)")
-    parser.add_argument("-V", "--version", action='version', version=__prog__version__)
+    parser.add_argument("-s", "--save", default=None,
+                        help="Save plot as an image (default: %(default)s)")
+    parser.add_argument("-V", "--version", action='version',
+                        version="{} {}".format(os.path.basename(__file__), __version__))
     args = parser.parse_args()
 
     # ----------------------------------
@@ -94,15 +105,20 @@ if __name__ == "__main__":
     # ----------------------------------
     # Example plots
     fig = plt.figure()
-    fig_rows = len(args.plot)
+    # When saving plots, render separate images
+    if args.save == None:
+        fig_rows = len(args.plot)
     graph = 1
     for pt in args.plot:
-        plt.subplot(fig_rows, 1, graph)
+        if args.save == None:
+            plt.subplot(fig_rows, 1, graph)
         graph+=1
         if (pt == 1):
             p = PlotLine()
-            p.drawData([1, 1.5, 1.2, 1.5])
-            p.drawData([2, 2.1, 2.2, 2.3, 2.4])
+            p.addData([1, 1.5, 1.2, 1.5])
+            p.addData([2, 2.1, 2.2, 2.3, 2.4])
+            p.x_labels = ['', '1', '2', '3']
+            p.draw()
         elif (pt == 2):
             p = TimeSlot()
             p.title = "My time slot"
@@ -113,4 +129,11 @@ if __name__ == "__main__":
         else:
             print "Unknown plot type: {}".format(p)
 
-    plt.show()
+        # Save separate images
+        if args.save != None:
+            print "Saving image to {}_{}".format(args.save, pt)
+            plt.savefig("{}_{}".format(args.save, pt))
+
+    # Render the whole figure
+    if args.save == None:
+        plt.show()
