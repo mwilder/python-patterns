@@ -28,7 +28,7 @@ class PlotLine:
 
     def draw(self):
         for d in self.data:
-            logging.debug("data: {} ".format(d))
+            logging.debug("PlotLine data: {} ".format(d))
             plt.plot(d)
         if self.x_labels != None:
             plt.xticks(np.arange(len(self.x_labels)), self.x_labels)
@@ -66,6 +66,38 @@ class TimeSlot:
 
     def show(self):
         self.draw()
+        plt.show()
+
+# Bar graph
+class BarGraph:
+    """A simple bar graph."""
+
+    def __init__(self):
+        logging.debug("BarGraph class created")
+        self.title = "BarGraph"
+        self.data = []
+        self.x_labels = None
+        self.legend = None
+
+    def addData(self, data):
+        self.data.append(data)
+
+    def draw(self):
+        width = 0.9 / len(self.data)
+        pos = 0.0
+        for d in self.data:
+            logging.debug("BarGraph data: {} ".format(d))
+            x = np.arange(len(d))
+            plt.bar(x+pos, d, width)
+            pos = pos + width
+        if self.x_labels != None:
+            plt.xticks(np.arange(len(self.x_labels))+0.45, self.x_labels)
+        if self.legend != None:
+            plt.legend(self.legend)
+        plt.title(self.title)
+
+    def show(self):
+        plt.draw()
         plt.show()
 
 #-----------------------------------------------------------
@@ -125,6 +157,15 @@ if __name__ == "__main__":
             p.addSlot(["Slot0", [(0,100)], 20, 'blue'])
             p.addSlot(["Slot1", [(10,60), (60,30)], 10, ('green', 'yellow')])
             p.addSlot(["Slot2", [(5,65)], 20, 'red'])
+            p.draw()
+        elif (pt == 3):
+            p = BarGraph()
+            p.title = "My bar chart"
+            p.addData([1.0, 1.1, 1.2, 1.15, 1.25])
+            p.addData([1.1, 1.1, 1.25, 1.2])
+            p.addData([1.05, 1.2, 1.1, 1.2, 1.1])
+            p.x_labels = ['A', 'B', 'C', 'D']
+            p.legend = ['S1', 'S2', 'S3']
             p.draw()
         else:
             print "Unknown plot type: {}".format(p)
