@@ -15,7 +15,7 @@ class TempClass:
     """A template class"""
 
     def __init__(self):
-        logging.info("Class created")
+        logging.info("{}: Class created".format(self.__class__.__name__))
 
 #----------------------------------------
 # Main program
